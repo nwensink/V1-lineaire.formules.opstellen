@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lineaire Formules Oefenen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #fffbeb; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .canvas-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 800px;
+            margin: 0 auto;
+            background: white; 
+            border-radius: 24px; 
+            box-shadow: 0 25px 50px -12px rgba(251, 191, 36, 0.25); 
+            border: 6px solid #fde68a;
+        }
+        canvas { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+            border-radius: 18px; 
+            cursor: crosshair;
+        }
+        .btn-warm { 
+            background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .btn-warm:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.4); }
+        
+        .math-table { border-collapse: collapse; font-family: 'Courier New', Courier, monospace; }
+        .math-table td { 
+            width: 80px; 
+            height: 60px;
+            text-align: center; 
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            position: relative; 
+            border-bottom: 3px solid #334155;
+        }
+        .math-table td:not(:last-child) { border-right: 3px solid #334155; }
+        .math-table tr:last-child td { border-bottom: none; }
+        
+        .arrow-container {
+            position: absolute;
+            width: 80px; 
+            left: 120px; /* Start bij midden van 2e kolom */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .arrow-label { color: #ef4444; font-weight: 900; font-size: 1.2rem; filter: drop-shadow(0 1px 1px white); }
+        
+        .fraction-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #1e293b;
+        }
+        .fraction-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+        }
+        .fraction-line {
+            width: 100%;
+            height: 3px;
+            background-color: #1e293b;
+            margin: 4px 0;
+            border-radius: 2px;
+        }
+
+        .correct { color: #059669; font-weight: 800; }
+        .incorrect { color: #dc2626; font-weight: 800; }
+    </style>
+</head>
+<body class="p-2 md:p-6">
+
+    <div class="max-w-[1400px] mx-auto">
+        <header class="mb-6 text-center">
+            <h1 class="text-4xl md:text-6xl font-black text-orange-600 mb-2 tracking-tight uppercase">Lineaire formules</h1>
+            <p class="text-amber-800 font-bold text-lg italic">Stel de formule op bij de lijn in het assenstelsel.</p>
+        </header>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+            
+            <div class="xl:col-span-7 flex flex-col gap-4">
+                <div class="canvas-container">
+                    <canvas id="graphCanvas" width="800" height="800"></canvas>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="togglePointsBtn" class="flex-1 bg-amber-100 border-2 border-amber-300 text-amber-700 hover:bg-amber-200 py-4 rounded-2xl font-bold transition-all shadow-sm">
+                        🔍 roosterpunten weergeven
+                    </button>
+                    <button id="newQuestionBtn" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-2xl font-bold transition-all shadow-md">
+                        nieuwe opgave 🚀
+                    </button>
+                </div>
+            </div>
+
+            <div class="xl:col-span-5 flex flex-col gap-6">
+                <div class="bg-white p-6 md:p-8 rounded-[2rem] shadow-2xl border-2 border-orange-100">
+                    <h2 class="text-2xl font-black text-slate-800 mb-6 text-center uppercase tracking-widest">Jouw Formule</h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase mb-2 ml-1">Typ hier je antwoord:</label>
+                            <input type="text" id="formulaInput" 
+                                   class="block w-full rounded-2xl border-4 border-amber-50 shadow-inner focus:border-orange-500 focus:ring-0 text-3xl p-5 text-center font-mono transition-all"
+                                   placeholder="y = 2x + 5"
+                                   autocomplete="off">
+                        </div>
+
+                        <button id="checkBtn" class="btn-warm w-full text-white py-5 rounded-2xl text-2xl font-black shadow-lg uppercase tracking-widest">
+                            Checken! ✅
+                        </button>
+
+                        <div id="feedback" class="min-h-[100px] p-6 rounded-2xl bg-orange-50 border-2 border-orange-100 flex items-center justify-center text-center transition-all duration-300">
+                            <p id="feedbackText" class="text-orange-900 font-bold text-xl leading-tight">Welke formule hoort bij deze lijn?</p>
+                        </div>
+
+                        <div id="calcExplanation" class="hidden mt-4 p-4 md:p-6 bg-slate-50 rounded-3xl border-2 border-slate-200 shadow-inner overflow-hidden">
+                            <h3 class="text-center font-black text-slate-700 uppercase text-xs mb-12 tracking-widest">Berekening Hellingsgetal (Afbeelding1.jpg)</h3>
+                            
+                            <div class="flex flex-col items-center gap-12">
+                                <div class="relative">
+                                    <!-- Top Arc (Delta X) - Pointing Right -->
+                                    <div class="arrow-container -top-12">
+                                        <span id="deltaXLabel" class="arrow-label mb-1"></span>
+                                        <svg width="80" height="30" viewBox="0 0 80 30" fill="none">
+                                            <path d="M5 25 C 10 5, 70 5, 75 25" stroke="#ef4444" stroke-width="3" fill="none" />
+                                            <path d="M68 20 L 75 25 L 65 28" stroke="#ef4444" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        </svg>
+                                    </div>
+
+                                    <table class="math-table">
+                                        <tr>
+                                            <td id="varXCell" class="italic text-slate-400">x</td>
+                                            <td id="x1Cell">0</td>
+                                            <td id="x2Cell">5</td>
+                                        </tr>
+                                        <tr>
+                                            <td id="varYCell" class="italic text-slate-400">y</td>
+                                            <td id="y1Cell">10</td>
+                                            <td id="y2Cell">20</td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Bottom Arc (Delta Y) - Pointing Right -->
+                                    <div class="arrow-container -bottom-14">
+                                        <svg width="80" height="30" viewBox="0 0 80 30" fill="none">
+                                            <path d="M5 5 C 10 25, 70 25, 75 5" stroke="#ef4444" stroke-width="3" fill="none" />
+                                            <path d="M68 10 L 75 5 L 65 2" stroke="#ef4444" stroke-width="3" fill="none" stroke-linecap="round" />
+                                        </svg>
+                                        <span id="deltaYLabel" class="arrow-label mt-1"></span>
+                                    </div>
+                                </div>
+
+                                <div class="fraction-row">
+                                    <div class="fraction-block">
+                                        <span id="calcTop">10</span>
+                                        <div class="fraction-line"></div>
+                                        <span id="calcBottom">5</span>
+                                    </div>
+                                    <span class="mb-1">=</span>
+                                    <div class="flex items-baseline gap-2">
+                                        <span id="calcResult" class="text-orange-600 text-4xl">2</span>
+                                        <span class="text-[10px] uppercase text-slate-400 font-black tracking-tighter">Hellingsgetal</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        const input = document.getElementById('formulaInput');
+        const checkBtn = document.getElementById('checkBtn');
+        const newQuestionBtn = document.getElementById('newQuestionBtn');
+        const togglePointsBtn = document.getElementById('togglePointsBtn');
+        const feedbackText = document.getElementById('feedbackText');
+        const feedbackContainer = document.getElementById('feedback');
+        const calcExplanation = document.getElementById('calcExplanation');
+
+        let currentProblem = {};
+        let showPoints = false;
+
+        const pairs = [
+            {y: 'y', x: 'x'}, {y: 'H', x: 't'}, {y: 'A', x: 'n'}, 
+            {y: 'K', x: 'u'}, {y: 'v', x: 't'}, {y: 'P', x: 'w'}
+        ];
+
+        function init() {
+            generateProblem();
+            checkBtn.addEventListener('click', checkAnswer);
+            newQuestionBtn.addEventListener('click', generateProblem);
+            togglePointsBtn.addEventListener('click', togglePoints);
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkAnswer(); });
+        }
+
+        function generateProblem() {
+            const pair = pairs[Math.floor(Math.random() * pairs.length)];
+            showPoints = false;
+            togglePointsBtn.innerText = "🔍 Roosterpunten weergeven";
+            calcExplanation.classList.add('hidden');
+            
+            const scales = [1, 2, 5, 10, 20, 25, 50, 100];
+            const stepX = scales[Math.floor(Math.random() * scales.length)];
+            const stepY = scales[Math.floor(Math.random() * scales.length)];
+
+            const origCol = 6;
+            const origRow = 6;
+
+            // Startpunt ALTIJD op de y-as (gx1 = 0)
+            let gx1 = 0; 
+            let gy1, gx2, gy2, rc, startValue;
+            let attempts = 0;
+            const forceHorizontal = Math.random() < 0.05;
+
+            while(attempts < 1000) {
+                gy1 = Math.floor(Math.random() * 9) - 4; 
+                // Tweede punt kiezen (niet op x=0)
+                gx2 = (Math.random() < 0.5 ? -1 : 1) * (Math.floor(Math.random() * 3) + 2);
+                
+                if (forceHorizontal) {
+                    gy2 = gy1;
+                } else {
+                    gy2 = Math.floor(Math.random() * 11) - 5;
+                }
+
+                if (gy1 === gy2 && !forceHorizontal) { attempts++; continue; }
+
+                rc = ((gy2 - gy1) * stepY) / ((gx2 - gx1) * stepX);
+                startValue = gy1 * stepY; 
+
+                if (isAllowedDecimal(rc)) break;
+                attempts++;
+            }
+
+            currentProblem = {
+                varX: pair.x, varY: pair.y,
+                stepX, stepY, rc, start: startValue,
+                gx1, gy1, gx2, gy2,
+                origCol, origRow
+            };
+
+            input.value = "";
+            showFeedback("Welke formule hoort bij deze lijn?", "neutral");
+            draw();
+        }
+
+        function isAllowedDecimal(val) {
+            if (val === 0) return true;
+            const test = val * 20; 
+            return Math.abs(test - Math.round(test)) < 0.0001;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const padding = 70;
+            const width = canvas.width - 2 * padding;
+            const height = canvas.height - 2 * padding;
+            const cols = 12; const rows = 12;
+            const cellW = width / cols; const cellH = height / rows;
+
+            const originX = padding + currentProblem.origCol * cellW;
+            const originY = padding + currentProblem.origRow * cellH;
+
+            // Grid
+            ctx.strokeStyle = "#d1d5db";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            for(let i=0; i<=cols; i++) {
+                let x = padding + i * cellW;
+                ctx.moveTo(x, padding); ctx.lineTo(x, padding + height);
+            }
+            for(let j=0; j<=rows; j++) {
+                let y = padding + j * cellH;
+                ctx.moveTo(padding, y); ctx.lineTo(padding + width, y);
+            }
+            ctx.stroke();
+
+            // Hoofdassen
+            ctx.strokeStyle = "#475569";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(originX, padding); ctx.lineTo(originX, padding + height);
+            ctx.moveTo(padding, originY); ctx.lineTo(padding + width, originY);
+            ctx.stroke();
+
+            // Getallen
+            ctx.fillStyle = "#1e293b";
+            ctx.font = "bold 16px sans-serif";
+            ctx.textAlign = "center";
+            for(let i = -currentProblem.origCol; i <= (cols - currentProblem.origCol); i++) {
+                if(i === 0) continue;
+                let xPos = originX + i * cellW;
+                ctx.fillText(i * currentProblem.stepX, xPos, originY + 28);
+            }
+            ctx.textAlign = "right";
+            for(let j = -(rows - currentProblem.origRow); j <= currentProblem.origRow; j++) {
+                if(j === 0) continue;
+                let yPos = originY - j * cellH;
+                ctx.fillText(j * currentProblem.stepY, originX - 14, yPos + 6);
+            }
+            ctx.fillText("0", originX - 12, originY + 24);
+
+            // Labels met halo
+            drawTextWithHalo(currentProblem.varX, padding + width + 30, originY + 8, "left");
+            drawTextWithHalo(currentProblem.varY, originX, padding - 30, "center");
+
+            // Lijn tekenen
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(padding, padding, width, height);
+            ctx.clip();
+
+            ctx.strokeStyle = "#f97316";
+            ctx.lineWidth = 6;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            const xLimitL = -currentProblem.origCol - 1;
+            const xLimitR = (cols - currentProblem.origCol) + 1;
+            const startX = originX + xLimitL * cellW;
+            const startY = originY - (currentProblem.rc * (xLimitL * currentProblem.stepX) + currentProblem.start) / currentProblem.stepY * cellH;
+            const endX = originX + xLimitR * cellW;
+            const endY = originY - (currentProblem.rc * (xLimitR * currentProblem.stepX) + currentProblem.start) / currentProblem.stepY * cellH;
+            ctx.moveTo(startX, startY); ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            if (showPoints) {
+                drawPoint(originX + currentProblem.gx1 * cellW, originY - currentProblem.gy1 * cellH);
+                drawPoint(originX + currentProblem.gx2 * cellW, originY - currentProblem.gy2 * cellH);
+            }
+            ctx.restore();
+        }
+
+        function drawTextWithHalo(text, x, y, align) {
+            ctx.save();
+            ctx.textAlign = align;
+            ctx.font = "italic 900 36px serif";
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 8;
+            ctx.strokeText(text, x, y);
+            ctx.fillStyle = "#92400e";
+            ctx.fillText(text, x, y);
+            ctx.restore();
+        }
+
+        function drawPoint(x, y) {
+            ctx.fillStyle = "#ef4444";
+            ctx.beginPath();
+            ctx.arc(x, y, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+        }
+
+        function togglePoints() {
+            showPoints = !showPoints;
+            togglePointsBtn.innerText = showPoints ? "🙈 Punten verbergen" : "🔍 Roosterpunten weergeven";
+            draw();
+        }
+
+        function checkAnswer() {
+            const rawIn = input.value.replace(/\s+/g, '').replace(',', '.');
+            const targetY = currentProblem.varY; 
+            const targetX = currentProblem.varX; 
+            
+            if (!rawIn.includes('=')) {
+                showFeedback(`Vergeet het '=' teken niet! (bijv. ${targetY} = ...)`, "error");
+                return;
+            }
+
+            const parts = rawIn.split('=');
+            if (parts[0] !== targetY) {
+                showFeedback(`Gebruik de letter '${targetY}'. Let op hoofdletters!`, "error");
+                return;
+            }
+
+            try {
+                const solve = (expr, xVal) => {
+                    let safeExpr = expr.replace(new RegExp(targetX, 'g'), `(${xVal})`);
+                    safeExpr = safeExpr.replace(/(\d)\(/g, '$1*('); 
+                    return new Function(`return ${safeExpr}`)();
+                };
+
+                const testValues = [-10, 0, 10];
+                let isCorrect = true;
+
+                for(let v of testValues) {
+                    const userY = solve(parts[1], v);
+                    const realY = currentProblem.rc * v + currentProblem.start;
+                    if (Math.abs(userY - realY) > 0.001) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+
+                updateExplanation(targetX, targetY);
+                calcExplanation.classList.remove('hidden');
+
+                if (isCorrect) {
+                    showFeedback("🎉 Helemaal goed! Bekijk hieronder de berekening.", "success");
+                } else {
+                    showFeedback("Nog niet helemaal goed. Bekijk de tabel voor hulp.", "error");
+                }
+            } catch (e) {
+                showFeedback(`Foutje? Gebruik getallen en de letter '${targetX}'`, "error");
+            }
+        }
+
+        function updateExplanation(varX, varY) {
+            // Punt 1 is altijd de Y-as (gx1 = 0, dus x1 = 0)
+            const x1 = currentProblem.gx1 * currentProblem.stepX;
+            const y1 = currentProblem.gy1 * currentProblem.stepY;
+            
+            // Punt 2 is het andere gekozen roosterpunt
+            const x2 = currentProblem.gx2 * currentProblem.stepX;
+            const y2 = currentProblem.gy2 * currentProblem.stepY;
+
+            const diffX = x2 - x1;
+            const diffY = y2 - y1;
+
+            document.getElementById('varXCell').innerText = varX;
+            document.getElementById('varYCell').innerText = varY;
+            
+            document.getElementById('x1Cell').innerText = x1;
+            document.getElementById('y1Cell').innerText = y1;
+            document.getElementById('x2Cell').innerText = x2;
+            document.getElementById('y2Cell').innerText = y2;
+
+            document.getElementById('deltaXLabel').innerText = (diffX >= 0 ? "+" : "") + formatNum(diffX);
+            document.getElementById('deltaYLabel').innerText = (diffY >= 0 ? "+" : "") + formatNum(diffY);
+
+            document.getElementById('calcTop').innerText = formatNum(diffY);
+            document.getElementById('calcBottom').innerText = formatNum(diffX);
+            document.getElementById('calcResult').innerText = formatNum(currentProblem.rc);
+        }
+
+        function formatNum(n) {
+            return Number(n.toFixed(2)).toString().replace('.', ',');
+        }
+
+        function showFeedback(text, type) {
+            feedbackText.innerText = text;
+            feedbackContainer.className = "min-h-[100px] p-6 rounded-2xl border-4 flex items-center justify-center text-center transition-all duration-300 shadow-inner";
+            if (type === "success") {
+                feedbackText.className = "correct text-xl";
+                feedbackContainer.classList.add("bg-green-50", "border-green-300");
+            } else if (type === "error") {
+                feedbackText.className = "incorrect text-xl";
+                feedbackContainer.classList.add("bg-red-50", "border-red-300");
+            } else {
+                feedbackText.className = "text-orange-900 font-bold text-lg";
+                feedbackContainer.classList.add("bg-orange-50", "border-orange-200");
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
