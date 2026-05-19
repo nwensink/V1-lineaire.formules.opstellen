@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lineaire Formules Oefenen</title>
+    <title>lineaire formules oefenen</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #fffbeb; font-family: 'Inter', sans-serif; overflow-x: hidden; }
@@ -46,7 +46,7 @@
         .arrow-container {
             position: absolute;
             width: 80px; 
-            left: 120px; /* Start bij midden van 2e kolom */
+            left: 120px; /* start bij midden van 2e kolom */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -105,31 +105,31 @@
 
             <div class="xl:col-span-5 flex flex-col gap-6">
                 <div class="bg-white p-6 md:p-8 rounded-[2rem] shadow-2xl border-2 border-orange-100">
-                    <h2 class="text-2xl font-black text-slate-800 mb-6 text-center uppercase tracking-widest">Jouw Formule</h2>
+                    <h2 class="text-2xl font-black text-slate-800 mb-6 text-center uppercase tracking-widest">jouw formule</h2>
                     
                     <div class="space-y-6">
                         <div>
-                            <label class="block text-xs font-black text-slate-400 uppercase mb-2 ml-1">Typ hier je antwoord:</label>
+                            <label class="block text-xs font-black text-slate-400 uppercase mb-2 ml-1">typ hier je antwoord:</label>
                             <input type="text" id="formulaInput" 
                                    class="block w-full rounded-2xl border-4 border-amber-50 shadow-inner focus:border-orange-500 focus:ring-0 text-3xl p-5 text-center font-mono transition-all"
-                                   placeholder="y = 2x + 5"
+                                   placeholder="bijv. y = 2x + 5"
                                    autocomplete="off">
                         </div>
 
                         <button id="checkBtn" class="btn-warm w-full text-white py-5 rounded-2xl text-2xl font-black shadow-lg uppercase tracking-widest">
-                            Checken! ✅
+                            checken! ✅
                         </button>
 
                         <div id="feedback" class="min-h-[100px] p-6 rounded-2xl bg-orange-50 border-2 border-orange-100 flex items-center justify-center text-center transition-all duration-300">
-                            <p id="feedbackText" class="text-orange-900 font-bold text-xl leading-tight">Welke formule hoort bij deze lijn?</p>
+                            <p id="feedbackText" class="text-orange-900 font-bold text-xl leading-tight">welke formule hoort bij deze lijn?</p>
                         </div>
 
                         <div id="calcExplanation" class="hidden mt-4 p-4 md:p-6 bg-slate-50 rounded-3xl border-2 border-slate-200 shadow-inner overflow-hidden">
-                            <h3 class="text-center font-black text-slate-700 uppercase text-xs mb-12 tracking-widest">Berekening Hellingsgetal (Afbeelding1.jpg)</h3>
+                            <h3 class="text-center font-black text-slate-700 uppercase text-xs mb-12 tracking-widest">berekening hellingsgetal (afbeelding1.jpg)</h3>
                             
                             <div class="flex flex-col items-center gap-12">
                                 <div class="relative">
-                                    <!-- Top Arc (Delta X) - Pointing Right -->
+                                    <!-- top arc (delta X) - pointing right -->
                                     <div class="arrow-container -top-12">
                                         <span id="deltaXLabel" class="arrow-label mb-1"></span>
                                         <svg width="80" height="30" viewBox="0 0 80 30" fill="none">
@@ -151,7 +151,7 @@
                                         </tr>
                                     </table>
 
-                                    <!-- Bottom Arc (Delta Y) - Pointing Right -->
+                                    <!-- bottom arc (delta Y) - pointing right -->
                                     <div class="arrow-container -bottom-14">
                                         <svg width="80" height="30" viewBox="0 0 80 30" fill="none">
                                             <path d="M5 5 C 10 25, 70 25, 75 5" stroke="#ef4444" stroke-width="3" fill="none" />
@@ -170,7 +170,7 @@
                                     <span class="mb-1">=</span>
                                     <div class="flex items-baseline gap-2">
                                         <span id="calcResult" class="text-orange-600 text-4xl">2</span>
-                                        <span class="text-[10px] uppercase text-slate-400 font-black tracking-tighter">Hellingsgetal</span>
+                                        <span class="text-[10px] uppercase text-slate-400 font-black tracking-tighter">hellingsgetal</span>
                                     </div>
                                 </div>
                             </div>
@@ -212,40 +212,37 @@
         function generateProblem() {
             const pair = pairs[Math.floor(Math.random() * pairs.length)];
             showPoints = false;
-            togglePointsBtn.innerText = "🔍 Roosterpunten weergeven";
+            togglePointsBtn.innerText = "🔍 roosterpunten weergeven";
             calcExplanation.classList.add('hidden');
             
             const scales = [1, 2, 5, 10, 20, 25, 50, 100];
-            const stepX = scales[Math.floor(Math.random() * scales.length)];
-            const stepY = scales[Math.floor(Math.random() * scales.length)];
-
+            
             const origCol = 6;
             const origRow = 6;
 
-            // Startpunt ALTIJD op de y-as (gx1 = 0)
+            // startpunt ALTIJD op de y-as (gx1 = 0)
             let gx1 = 0; 
             let gy1, gx2, gy2, rc, startValue;
-            let attempts = 0;
-            const forceHorizontal = Math.random() < 0.05;
+            let stepX, stepY;
+            let found = false;
 
-            while(attempts < 1000) {
-                gy1 = Math.floor(Math.random() * 9) - 4; 
-                // Tweede punt kiezen (niet op x=0)
-                gx2 = (Math.random() < 0.5 ? -1 : 1) * (Math.floor(Math.random() * 3) + 2);
+            while(!found) {
+                stepX = scales[Math.floor(Math.random() * scales.length)];
+                stepY = scales[Math.floor(Math.random() * scales.length)];
                 
-                if (forceHorizontal) {
-                    gy2 = gy1;
-                } else {
-                    gy2 = Math.floor(Math.random() * 11) - 5;
-                }
+                gy1 = Math.floor(Math.random() * 9) - 4; 
+                // tweede punt kiezen (niet op x=0)
+                gx2 = (Math.random() < 0.5 ? -1 : 1) * (Math.floor(Math.random() * 3) + 2);
+                gy2 = Math.floor(Math.random() * 11) - 5;
 
-                if (gy1 === gy2 && !forceHorizontal) { attempts++; continue; }
+                if (gy1 === gy2) continue; // geen horizontale lijnen!
 
                 rc = ((gy2 - gy1) * stepY) / ((gx2 - gx1) * stepX);
                 startValue = gy1 * stepY; 
 
-                if (isAllowedDecimal(rc)) break;
-                attempts++;
+                if (isAllowedDecimal(rc)) {
+                    found = true;
+                }
             }
 
             currentProblem = {
@@ -256,12 +253,12 @@
             };
 
             input.value = "";
-            showFeedback("Welke formule hoort bij deze lijn?", "neutral");
+            showFeedback("welke formule hoort bij deze lijn?", "neutral");
             draw();
         }
 
         function isAllowedDecimal(val) {
-            if (val === 0) return true;
+            if (val === 0) return false; // geen horizontale lijnen!
             const test = val * 20; 
             return Math.abs(test - Math.round(test)) < 0.0001;
         }
@@ -277,7 +274,7 @@
             const originX = padding + currentProblem.origCol * cellW;
             const originY = padding + currentProblem.origRow * cellH;
 
-            // Grid
+            // grid
             ctx.strokeStyle = "#d1d5db";
             ctx.lineWidth = 1.5;
             ctx.beginPath();
@@ -291,7 +288,7 @@
             }
             ctx.stroke();
 
-            // Hoofdassen
+            // hoofdassen
             ctx.strokeStyle = "#475569";
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -299,7 +296,7 @@
             ctx.moveTo(padding, originY); ctx.lineTo(padding + width, originY);
             ctx.stroke();
 
-            // Getallen
+            // getallen
             ctx.fillStyle = "#1e293b";
             ctx.font = "bold 16px sans-serif";
             ctx.textAlign = "center";
@@ -316,11 +313,11 @@
             }
             ctx.fillText("0", originX - 12, originY + 24);
 
-            // Labels met halo
+            // labels met halo
             drawTextWithHalo(currentProblem.varX, padding + width + 30, originY + 8, "left");
             drawTextWithHalo(currentProblem.varY, originX, padding - 30, "center");
 
-            // Lijn tekenen
+            // lijn tekenen
             ctx.save();
             ctx.beginPath();
             ctx.rect(padding, padding, width, height);
@@ -370,7 +367,7 @@
 
         function togglePoints() {
             showPoints = !showPoints;
-            togglePointsBtn.innerText = showPoints ? "🙈 Punten verbergen" : "🔍 Roosterpunten weergeven";
+            togglePointsBtn.innerText = showPoints ? "🙈 roosterpunten verbergen" : "🔍 roosterpunten weergeven";
             draw();
         }
 
@@ -380,13 +377,13 @@
             const targetX = currentProblem.varX; 
             
             if (!rawIn.includes('=')) {
-                showFeedback(`Vergeet het '=' teken niet! (bijv. ${targetY} = ...)`, "error");
+                showFeedback(`vergeet het '=' teken niet! (bijv. ${targetY} = ...)`, "error");
                 return;
             }
 
             const parts = rawIn.split('=');
             if (parts[0] !== targetY) {
-                showFeedback(`Gebruik de letter '${targetY}'. Let op hoofdletters!`, "error");
+                showFeedback(`gebruik de letter '${targetY}'. let op hoofdletters!`, "error");
                 return;
             }
 
@@ -413,21 +410,21 @@
                 calcExplanation.classList.remove('hidden');
 
                 if (isCorrect) {
-                    showFeedback("🎉 Helemaal goed! Bekijk hieronder de berekening.", "success");
+                    showFeedback("🎉 helemaal goed! bekijk hieronder de berekening.", "success");
                 } else {
-                    showFeedback("Nog niet helemaal goed. Bekijk de tabel voor hulp.", "error");
+                    showFeedback("nog niet helemaal goed. bekijk de tabel voor hulp.", "error");
                 }
             } catch (e) {
-                showFeedback(`Foutje? Gebruik getallen en de letter '${targetX}'`, "error");
+                showFeedback(`foutje? gebruik getallen en de letter '${targetX}'`, "error");
             }
         }
 
         function updateExplanation(varX, varY) {
-            // Punt 1 is altijd de Y-as (gx1 = 0, dus x1 = 0)
+            // punt 1 is altijd de y-as (gx1 = 0, dus x1 = 0)
             const x1 = currentProblem.gx1 * currentProblem.stepX;
             const y1 = currentProblem.gy1 * currentProblem.stepY;
             
-            // Punt 2 is het andere gekozen roosterpunt
+            // punt 2 is het andere gekozen roosterpunt
             const x2 = currentProblem.gx2 * currentProblem.stepX;
             const y2 = currentProblem.gy2 * currentProblem.stepY;
 
@@ -450,23 +447,24 @@
             document.getElementById('calcResult').innerText = formatNum(currentProblem.rc);
         }
 
-        function formatNum(n) {
-            return Number(n.toFixed(2)).toString().replace('.', ',');
-        }
-
         function showFeedback(text, type) {
             feedbackText.innerText = text;
-            feedbackContainer.className = "min-h-[100px] p-6 rounded-2xl border-4 flex items-center justify-center text-center transition-all duration-300 shadow-inner";
+            feedbackContainer.className = "min-h-[100px] p-4 rounded-xl border-2 flex items-center justify-center text-center transition-all";
+            
             if (type === "success") {
-                feedbackText.className = "correct text-xl";
-                feedbackContainer.classList.add("bg-green-50", "border-green-300");
+                feedbackText.className = "correct text-lg";
+                feedbackContainer.classList.add("bg-green-50", "border-green-200");
             } else if (type === "error") {
-                feedbackText.className = "incorrect text-xl";
-                feedbackContainer.classList.add("bg-red-50", "border-red-300");
+                feedbackText.className = "incorrect text-lg";
+                feedbackContainer.classList.add("bg-red-50", "border-red-200");
             } else {
-                feedbackText.className = "text-orange-900 font-bold text-lg";
-                feedbackContainer.classList.add("bg-orange-50", "border-orange-200");
+                feedbackText.className = "text-orange-800 italic font-medium";
+                feedbackContainer.classList.add("bg-orange-50", "border-orange-100");
             }
+        }
+
+        function formatNum(n) {
+            return Number(n.toFixed(2)).toString().replace('.', ',');
         }
 
         window.onload = init;
