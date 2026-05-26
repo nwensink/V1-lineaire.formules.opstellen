@@ -87,7 +87,52 @@
             <p class="text-amber-800 font-bold text-lg italic">Stel de formule op bij de lijn in het assenstelsel.</p>
         </header>
 
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        <!-- beginscherm / instellingen -->
+        <div id="settingsScreen" class="max-w-2xl mx-auto bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border-4 border-amber-200 mt-10">
+            <h2 class="text-3xl font-black text-orange-500 mb-6 text-center uppercase tracking-wider">instellingen</h2>
+            <p class="text-slate-600 mb-8 text-center font-medium">kies hieronder met welke opties je wilt oefenen in de grafieken:</p>
+            
+            <div class="space-y-6 mb-10">
+                <label class="flex items-center gap-4 p-4 rounded-2xl bg-amber-50 border-2 border-amber-100 hover:border-amber-300 transition-all cursor-pointer select-none">
+                    <input type="checkbox" id="optOtherVars" class="w-6 h-6 rounded text-orange-500 focus:ring-orange-500 border-amber-300">
+                    <div>
+                        <span class="block font-black text-slate-800 text-lg">ook andere letters dan x en y</span>
+                        <span class="block text-sm text-slate-500 font-medium">wissel af met variabelen zoals H, t, A, n, K en u</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-4 p-4 rounded-2xl bg-amber-50 border-2 border-amber-100 hover:border-amber-300 transition-all cursor-pointer select-none">
+                    <input type="checkbox" id="optInterceptGrid" checked class="w-6 h-6 rounded text-orange-500 focus:ring-orange-500 border-amber-300">
+                    <div>
+                        <span class="block font-black text-slate-800 text-lg">begingetal is altijd een roosterpunt</span>
+                        <span class="block text-sm text-slate-500 font-medium">indien uitgevinkt ligt het startgetal soms tussen de roosterlijnen in</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-4 p-4 rounded-2xl bg-amber-50 border-2 border-amber-100 hover:border-amber-300 transition-all cursor-pointer select-none">
+                    <input type="checkbox" id="optHorizontal" class="w-6 h-6 rounded text-orange-500 focus:ring-orange-500 border-amber-300">
+                    <div>
+                        <span class="block font-black text-slate-800 text-lg">ook horizontale lijnen</span>
+                        <span class="block text-sm text-slate-500 font-medium">lijnen zonder stijging of daling (bijv. y = 5)</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-4 p-4 rounded-2xl bg-amber-50 border-2 border-amber-100 hover:border-amber-300 transition-all cursor-pointer select-none">
+                    <input type="checkbox" id="optVertical" class="w-6 h-6 rounded text-orange-500 focus:ring-orange-500 border-amber-300">
+                    <div>
+                        <span class="block font-black text-slate-800 text-lg">ook verticale lijnen</span>
+                        <span class="block text-sm text-slate-500 font-medium">lijnen die recht omhoog lopen (bijv. x = 3)</span>
+                    </div>
+                </label>
+            </div>
+
+            <button id="startBtn" class="btn-warm w-full text-white py-5 rounded-2xl text-2xl font-black shadow-lg uppercase tracking-widest">
+                starten 🚀
+            </button>
+        </div>
+
+        <!-- hoofdscherm (standaard verborgen) -->
+        <div id="appScreen" class="hidden grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
             
             <div class="xl:col-span-7 flex flex-col gap-4">
                 <div class="canvas-container">
@@ -101,6 +146,9 @@
                         nieuwe opgave 🚀
                     </button>
                 </div>
+                <button id="backToSettingsBtn" class="text-sm font-bold text-amber-700 hover:text-orange-600 transition-colors uppercase tracking-wider text-center mt-2">
+                    ⬅️ terug naar instellingen
+                </button>
             </div>
 
             <div class="xl:col-span-5 flex flex-col gap-6">
@@ -125,9 +173,9 @@
                         </div>
 
                         <div id="calcExplanation" class="hidden mt-4 p-4 md:p-6 bg-slate-50 rounded-3xl border-2 border-slate-200 shadow-inner overflow-hidden">
-                            <h3 class="text-center font-black text-slate-700 uppercase text-xs mb-12 tracking-widest">berekening hellingsgetal (afbeelding1.jpg)</h3>
+                            <h3 id="explanationTitle" class="text-center font-black text-slate-700 uppercase text-xs mb-12 tracking-widest">berekening hellingsgetal (afbeelding1.jpg)</h3>
                             
-                            <div class="flex flex-col items-center gap-12">
+                            <div id="explanationContent" class="flex flex-col items-center gap-12">
                                 <div class="relative">
                                     <!-- top arc (delta X) - pointing right -->
                                     <div class="arrow-container -top-12">
@@ -161,7 +209,7 @@
                                     </div>
                                 </div>
 
-                                <div class="fraction-row">
+                                <div id="calcFractionRow" class="fraction-row">
                                     <div class="fraction-block">
                                         <span id="calcTop">10</span>
                                         <div class="fraction-line"></div>
@@ -172,6 +220,10 @@
                                         <span id="calcResult" class="text-orange-600 text-4xl">2</span>
                                         <span class="text-[10px] uppercase text-slate-400 font-black tracking-tighter">hellingsgetal</span>
                                     </div>
+                                </div>
+
+                                <div id="calcVerticalMessage" class="hidden text-center p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 font-bold max-w-sm">
+                                    omdat het verschil in de horizontale as 0 is, kun je niet delen door 0. deze lijn heeft geen hellingsgetal. de formule is simpelweg de x-waarde waar de lijn doorheen gaat!
                                 </div>
                             </div>
                         </div>
@@ -192,6 +244,17 @@
         const feedbackText = document.getElementById('feedbackText');
         const feedbackContainer = document.getElementById('feedback');
         const calcExplanation = document.getElementById('calcExplanation');
+        
+        const settingsScreen = document.getElementById('settingsScreen');
+        const appScreen = document.getElementById('appScreen');
+        const startBtn = document.getElementById('startBtn');
+        const backToSettingsBtn = document.getElementById('backToSettingsBtn');
+
+        // instellingen variabelen
+        const optOtherVars = document.getElementById('optOtherVars');
+        const optInterceptGrid = document.getElementById('optInterceptGrid');
+        const optHorizontal = document.getElementById('optHorizontal');
+        const optVertical = document.getElementById('optVertical');
 
         let currentProblem = {};
         let showPoints = false;
@@ -202,46 +265,127 @@
         ];
 
         function init() {
-            generateProblem();
+            startBtn.addEventListener('click', startGame);
+            backToSettingsBtn.addEventListener('click', showSettings);
+            
             checkBtn.addEventListener('click', checkAnswer);
             newQuestionBtn.addEventListener('click', generateProblem);
             togglePointsBtn.addEventListener('click', togglePoints);
             input.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkAnswer(); });
         }
 
+        function startGame() {
+            settingsScreen.classList.add('hidden');
+            appScreen.classList.remove('hidden');
+            generateProblem();
+        }
+
+        function showSettings() {
+            appScreen.classList.add('hidden');
+            settingsScreen.classList.remove('hidden');
+        }
+
         function generateProblem() {
-            const pair = pairs[Math.floor(Math.random() * pairs.length)];
+            // bepaal bruikbare variabelen set
+            let pair = {y: 'y', x: 'x'};
+            if (optOtherVars.checked) {
+                pair = pairs[Math.floor(Math.random() * pairs.length)];
+            }
+
             showPoints = false;
             togglePointsBtn.innerText = "🔍 roosterpunten weergeven";
             calcExplanation.classList.add('hidden');
             
             const scales = [1, 2, 5, 10, 20, 25, 50, 100];
-            
             const origCol = 6;
             const origRow = 6;
 
-            // startpunt ALTIJD op de y-as (gx1 = 0)
-            let gx1 = 0; 
-            let gy1, gx2, gy2, rc, startValue;
-            let stepX, stepY;
+            let gx1 = 0, gy1 = 0, gx2 = 0, gy2 = 0;
+            let rc = 0, startValue = 0;
+            let stepX = 1, stepY = 1;
+            let isVertical = false;
+            let isHorizontal = false;
             let found = false;
+
+            // Bepaal gewogen kansen: horizontale en verticale lijnen hebben beide een kans van maximaal 10%
+            const r = Math.random();
+            let chosenType = 'normal';
+            
+            const probHorizontal = optHorizontal.checked ? 0.10 : 0.0;
+            const probVertical = optVertical.checked ? 0.10 : 0.0;
+
+            if (r < probHorizontal) {
+                chosenType = 'horizontal';
+            } else if (r < probHorizontal + probVertical) {
+                chosenType = 'vertical';
+            } else {
+                chosenType = 'normal';
+            }
 
             while(!found) {
                 stepX = scales[Math.floor(Math.random() * scales.length)];
                 stepY = scales[Math.floor(Math.random() * scales.length)];
-                
-                gy1 = Math.floor(Math.random() * 9) - 4; 
-                // tweede punt kiezen (niet op x=0)
-                gx2 = (Math.random() < 0.5 ? -1 : 1) * (Math.floor(Math.random() * 3) + 2);
-                gy2 = Math.floor(Math.random() * 11) - 5;
 
-                if (gy1 === gy2) continue; // geen horizontale lijnen!
+                if (chosenType === 'vertical') {
+                    // verticale lijn: x = constant
+                    isVertical = true;
+                    // kies x-coördinaat niet op 0 om het leuker te maken
+                    gx1 = (Math.random() < 0.5 ? -1 : 1) * (Math.floor(Math.random() * 3) + 2);
+                    gx2 = gx1; // x blijft gelijk
+                    gy1 = Math.floor(Math.random() * 4) - 2; // willekeurige y-roosterpunten
+                    gy2 = gy1 + (Math.random() < 0.5 ? -1 : 1) * (Math.floor(Math.random() * 3) + 2);
+                    
+                    // controleer of y2 binnen grid valt
+                    if (gy2 >= -5 && gy2 <= 5) {
+                        rc = Infinity;
+                        startValue = NaN; // geen snijpunt met y-as mogelijk bij verticale lijnen tenzij x=0
+                        found = true;
+                    }
+                } 
+                else if (chosenType === 'horizontal') {
+                    // horizontale lijn: y = constant
+                    isHorizontal = true;
+                    if (optInterceptGrid.checked) {
+                        gx1 = 0;
+                        gy1 = Math.floor(Math.random() * 9) - 4;
+                    } else {
+                        gx1 = Math.floor(Math.random() * 4) - 2;
+                        gy1 = Math.floor(Math.random() * 9) - 4;
+                    }
+                    gx2 = gx1 + (Math.floor(Math.random() * 3) + 2);
+                    gy2 = gy1; // y blijft gelijk
 
-                rc = ((gy2 - gy1) * stepY) / ((gx2 - gx1) * stepX);
-                startValue = gy1 * stepY; 
+                    if (gx2 >= -5 && gx2 <= 5) {
+                        rc = 0;
+                        startValue = gy1 * stepY;
+                        found = true;
+                    }
+                } 
+                else {
+                    // normale hellende lijn
+                    if (optInterceptGrid.checked) {
+                        gx1 = 0; // dwing af dat snijpunt y-as een roosterpunt is
+                        gy1 = Math.floor(Math.random() * 9) - 4;
+                        gx2 = (Math.random() < 0.5 ? -1 : 1) * (Math.floor(Math.random() * 3) + 2);
+                        gy2 = Math.floor(Math.random() * 11) - 5;
+                    } else {
+                        // begingetal hoeft GEEN roosterpunt te zijn. kies twee willekeurige roosterpunten.
+                        gx1 = Math.floor(Math.random() * 5) - 3; // bijv -3 tot 1
+                        gy1 = Math.floor(Math.random() * 7) - 3;
+                        gx2 = gx1 + (Math.floor(Math.random() * 3) + 2); // dx is 2 tot 4
+                        gy2 = Math.floor(Math.random() * 11) - 5;
+                    }
 
-                if (isAllowedDecimal(rc)) {
-                    found = true;
+                    if (gx2 === gx1 || gy1 === gy2) continue; // geen verticale/horizontale lijnen in de 'normale' modus
+
+                    rc = ((gy2 - gy1) * stepY) / ((gx2 - gx1) * stepX);
+                    startValue = (gy1 * stepY) - rc * (gx1 * stepX);
+
+                    // controleer of het startgetal binnen het scherm past
+                    const startGridY = startValue / stepY;
+                    if (startGridY >= -5 && startGridY <= 5 && isAllowedDecimal(rc)) {
+                        found = true;
+                    }
                 }
             }
 
@@ -249,7 +393,8 @@
                 varX: pair.x, varY: pair.y,
                 stepX, stepY, rc, start: startValue,
                 gx1, gy1, gx2, gy2,
-                origCol, origRow
+                origCol, origRow,
+                isVertical, isHorizontal
             };
 
             input.value = "";
@@ -258,7 +403,7 @@
         }
 
         function isAllowedDecimal(val) {
-            if (val === 0) return false; // geen horizontale lijnen!
+            if (val === 0) return false; 
             const test = val * 20; 
             return Math.abs(test - Math.round(test)) < 0.0001;
         }
@@ -327,13 +472,21 @@
             ctx.lineWidth = 6;
             ctx.lineCap = "round";
             ctx.beginPath();
-            const xLimitL = -currentProblem.origCol - 1;
-            const xLimitR = (cols - currentProblem.origCol) + 1;
-            const startX = originX + xLimitL * cellW;
-            const startY = originY - (currentProblem.rc * (xLimitL * currentProblem.stepX) + currentProblem.start) / currentProblem.stepY * cellH;
-            const endX = originX + xLimitR * cellW;
-            const endY = originY - (currentProblem.rc * (xLimitR * currentProblem.stepX) + currentProblem.start) / currentProblem.stepY * cellH;
-            ctx.moveTo(startX, startY); ctx.lineTo(endX, endY);
+            
+            if (currentProblem.isVertical) {
+                // perfecte verticale lijn door x = gx1 * stepX
+                const xPos = originX + currentProblem.gx1 * cellW;
+                ctx.moveTo(xPos, padding);
+                ctx.lineTo(xPos, padding + height);
+            } else {
+                const xLimitL = -currentProblem.origCol - 1;
+                const xLimitR = (cols - currentProblem.origCol) + 1;
+                const startX = originX + xLimitL * cellW;
+                const startY = originY - (currentProblem.rc * (xLimitL * currentProblem.stepX) + currentProblem.start) / currentProblem.stepY * cellH;
+                const endX = originX + xLimitR * cellW;
+                const endY = originY - (currentProblem.rc * (xLimitR * currentProblem.stepX) + currentProblem.start) / currentProblem.stepY * cellH;
+                ctx.moveTo(startX, startY); ctx.lineTo(endX, endY);
+            }
             ctx.stroke();
 
             if (showPoints) {
@@ -382,7 +535,35 @@
             }
 
             const parts = rawIn.split('=');
-            if (parts[0] !== targetY) {
+            const leftHand = parts[0];
+            const rightHand = parts[1];
+
+            if (currentProblem.isVertical) {
+                // bij verticale lijn is de formule van de vorm x = getal
+                if (leftHand !== targetX) {
+                    showFeedback(`dit is een verticale lijn! de formule moet beginnen met '${targetX} ='.`, "error");
+                    return;
+                }
+                try {
+                    const userVal = new Function(`return ${rightHand}`)();
+                    const targetVal = currentProblem.gx1 * currentProblem.stepX;
+                    if (Math.abs(userVal - targetVal) < 0.001) {
+                        showFeedback("🎉 helemaal goed! bekijk hieronder de berekening.", "success");
+                        updateExplanation(targetX, targetY);
+                        calcExplanation.classList.remove('hidden');
+                    } else {
+                        showFeedback("nog niet helemaal goed. bekijk de tabel voor hulp.", "error");
+                        updateExplanation(targetX, targetY);
+                        calcExplanation.classList.remove('hidden');
+                    }
+                } catch(e) {
+                    showFeedback(`foutje? voer een getal in na '${targetX} = '`, "error");
+                }
+                return;
+            }
+
+            // normale of horizontale lijn (start met y)
+            if (leftHand !== targetY) {
                 showFeedback(`gebruik de letter '${targetY}'. let op hoofdletters!`, "error");
                 return;
             }
@@ -394,15 +575,29 @@
                     return new Function(`return ${safeExpr}`)();
                 };
 
-                const testValues = [-10, 0, 10];
                 let isCorrect = true;
 
-                for(let v of testValues) {
-                    const userY = solve(parts[1], v);
-                    const realY = currentProblem.rc * v + currentProblem.start;
-                    if (Math.abs(userY - realY) > 0.001) {
+                if (currentProblem.isHorizontal) {
+                    // bij horizontale lijn hoeft er geen 'x' in te zitten (bijv. y = 5)
+                    // we testen of de uitkomst onafhankelijk van x altijd klopt
+                    const val1 = solve(rightHand, 0);
+                    const val2 = solve(rightHand, 10);
+                    if (Math.abs(val1 - currentProblem.start) > 0.001 || Math.abs(val2 - currentProblem.start) > 0.001) {
                         isCorrect = false;
-                        break;
+                    }
+                } else {
+                    const testValues = [-10, 0, 10];
+                    if (!rightHand.includes(targetX)) {
+                        showFeedback(`gebruik de letter '${targetX}' in je formule.`, "error");
+                        return;
+                    }
+                    for(let v of testValues) {
+                        const userY = solve(rightHand, v);
+                        const realY = currentProblem.rc * v + currentProblem.start;
+                        if (Math.abs(userY - realY) > 0.001) {
+                            isCorrect = false;
+                            break;
+                        }
                     }
                 }
 
@@ -420,11 +615,8 @@
         }
 
         function updateExplanation(varX, varY) {
-            // punt 1 is altijd de y-as (gx1 = 0, dus x1 = 0)
             const x1 = currentProblem.gx1 * currentProblem.stepX;
             const y1 = currentProblem.gy1 * currentProblem.stepY;
-            
-            // punt 2 is het andere gekozen roosterpunt
             const x2 = currentProblem.gx2 * currentProblem.stepX;
             const y2 = currentProblem.gy2 * currentProblem.stepY;
 
@@ -433,7 +625,6 @@
 
             document.getElementById('varXCell').innerText = varX;
             document.getElementById('varYCell').innerText = varY;
-            
             document.getElementById('x1Cell').innerText = x1;
             document.getElementById('y1Cell').innerText = y1;
             document.getElementById('x2Cell').innerText = x2;
@@ -442,9 +633,23 @@
             document.getElementById('deltaXLabel').innerText = (diffX >= 0 ? "+" : "") + formatNum(diffX);
             document.getElementById('deltaYLabel').innerText = (diffY >= 0 ? "+" : "") + formatNum(diffY);
 
-            document.getElementById('calcTop').innerText = formatNum(diffY);
-            document.getElementById('calcBottom').innerText = formatNum(diffX);
-            document.getElementById('calcResult').innerText = formatNum(currentProblem.rc);
+            const explanationTitle = document.getElementById('explanationTitle');
+            const calcFractionRow = document.getElementById('calcFractionRow');
+            const calcVerticalMessage = document.getElementById('calcVerticalMessage');
+
+            if (currentProblem.isVertical) {
+                explanationTitle.innerText = "berekening verticale lijn";
+                calcFractionRow.classList.add('hidden');
+                calcVerticalMessage.classList.remove('hidden');
+            } else {
+                explanationTitle.innerText = "berekening hellingsgetal (afbeelding1.jpg)";
+                calcFractionRow.classList.remove('hidden');
+                calcVerticalMessage.classList.add('hidden');
+
+                document.getElementById('calcTop').innerText = formatNum(diffY);
+                document.getElementById('calcBottom').innerText = formatNum(diffX);
+                document.getElementById('calcResult').innerText = formatNum(currentProblem.rc);
+            }
         }
 
         function showFeedback(text, type) {
