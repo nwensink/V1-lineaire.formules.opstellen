@@ -615,10 +615,16 @@
         }
 
         function updateExplanation(varX, varY) {
-            const x1 = currentProblem.gx1 * currentProblem.stepX;
-            const y1 = currentProblem.gy1 * currentProblem.stepY;
-            const x2 = currentProblem.gx2 * currentProblem.stepX;
-            const y2 = currentProblem.gy2 * currentProblem.stepY;
+            let x1 = currentProblem.gx1 * currentProblem.stepX;
+            let y1 = currentProblem.gy1 * currentProblem.stepY;
+            let x2 = currentProblem.gx2 * currentProblem.stepX;
+            let y2 = currentProblem.gy2 * currentProblem.stepY;
+
+            // Zorg dat het punt met de kleinste x-coördinaat altijd links (als eerste) in de tabel staat
+            if (x2 < x1) {
+                const tempX = x1; x1 = x2; x2 = tempX;
+                const tempY = y1; y1 = y2; y2 = tempY;
+            }
 
             const diffX = x2 - x1;
             const diffY = y2 - y1;
