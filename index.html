@@ -83,8 +83,8 @@
 
     <div class="max-w-[1400px] mx-auto">
         <header class="mb-6 text-center">
-            <h1 class="text-4xl md:text-6xl font-black text-orange-600 mb-2 tracking-tight uppercase">Lineaire formules</h1>
-            <p class="text-amber-800 font-bold text-lg italic">Stel de formule op bij de lijn in het assenstelsel.</p>
+            <h1 class="text-4xl md:text-6xl font-black text-orange-600 mb-2 tracking-tight uppercase">lijnen trekken! ✍️</h1>
+            <p class="text-amber-800 font-bold text-lg italic">vind de formule bij de lijn in het assenstelsel.</p>
         </header>
 
         <!-- beginscherm / instellingen -->
@@ -102,9 +102,9 @@
                 </label>
 
                 <label class="flex items-center gap-4 p-4 rounded-2xl bg-amber-50 border-2 border-amber-100 hover:border-amber-300 transition-all cursor-pointer select-none">
-                    <input type="checkbox" id="optInterceptGrid" checked class="w-6 h-6 rounded text-orange-500 focus:ring-orange-500 border-amber-300">
+                    <input type="checkbox" id="optInterceptGrid" class="w-6 h-6 rounded text-orange-500 focus:ring-orange-500 border-amber-300">
                     <div>
-                        <span class="block font-black text-slate-800 text-lg">begingetal is altijd een roosterpunt</span>
+                        <span class="block font-black text-slate-800 text-lg">startgetal is altijd een roosterpunt</span>
                         <span class="block text-sm text-slate-500 font-medium">indien uitgevinkt ligt het startgetal soms tussen de roosterlijnen in</span>
                     </div>
                 </label>
@@ -173,10 +173,10 @@
                         </div>
 
                         <div id="calcExplanation" class="hidden mt-4 p-4 md:p-6 bg-slate-50 rounded-3xl border-2 border-slate-200 shadow-inner overflow-hidden">
-                            <h3 id="explanationTitle" class="text-center font-black text-slate-700 uppercase text-xs mb-12 tracking-widest">berekening hellingsgetal (afbeelding1.jpg)</h3>
+                            <h3 id="explanationTitle" class="text-center font-black text-slate-700 uppercase text-xs mb-14 tracking-widest">berekening hellingsgetal</h3>
                             
-                            <div id="explanationContent" class="flex flex-col items-center gap-12">
-                                <div class="relative">
+                            <div id="explanationContent" class="flex flex-col items-center gap-8">
+                                <div id="tableAndArcs" class="relative mt-4 mb-12">
                                     <!-- top arc (delta X) - pointing right -->
                                     <div class="arrow-container -top-12">
                                         <span id="deltaXLabel" class="arrow-label mb-1"></span>
@@ -222,8 +222,15 @@
                                     </div>
                                 </div>
 
-                                <div id="calcVerticalMessage" class="hidden text-center p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 font-bold max-w-sm">
-                                    omdat het verschil in de horizontale as 0 is, kun je niet delen door 0. deze lijn heeft geen hellingsgetal. de formule is simpelweg de x-waarde waar de lijn doorheen gaat!
+                                <div id="calcVerticalMessage" class="hidden text-center p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl text-amber-900 font-semibold max-w-md leading-relaxed text-base">
+                                </div>
+
+                                <!-- Startgetal berekening container -->
+                                <div id="calcStartContainer" class="hidden w-full pt-6 border-t-2 border-slate-200 text-left space-y-3 font-mono text-sm md:text-base text-slate-800 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                                    <h4 class="font-sans font-black text-xs uppercase text-orange-600 tracking-wider text-center mb-2">berekening startgetal</h4>
+                                    <p id="calcStartStep1" class="bg-amber-50/60 p-2 rounded-lg border border-amber-100"></p>
+                                    <p id="calcStartStep2" class="bg-amber-50/60 p-2 rounded-lg border border-amber-100"></p>
+                                    <p id="calcStartStep3" class="bg-amber-100/80 p-2 rounded-lg border border-amber-200 font-bold text-slate-900"></p>
                                 </div>
                             </div>
                         </div>
@@ -525,7 +532,7 @@
         }
 
         function checkAnswer() {
-            const rawIn = input.value.replace(/\s+/g, '').replace(',', '.');
+            const rawIn = input.value.replace(/\s+/g, '').replace(/,/g, '.');
             const targetY = currentProblem.varY; 
             const targetX = currentProblem.varX; 
             
@@ -640,21 +647,68 @@
             document.getElementById('deltaYLabel').innerText = (diffY >= 0 ? "+" : "") + formatNum(diffY);
 
             const explanationTitle = document.getElementById('explanationTitle');
+            const tableAndArcs = document.getElementById('tableAndArcs');
             const calcFractionRow = document.getElementById('calcFractionRow');
             const calcVerticalMessage = document.getElementById('calcVerticalMessage');
+            const calcStartContainer = document.getElementById('calcStartContainer');
 
             if (currentProblem.isVertical) {
-                explanationTitle.innerText = "berekening verticale lijn";
+                explanationTitle.innerText = "uitleg verticale lijn";
+                tableAndArcs.classList.add('hidden');
                 calcFractionRow.classList.add('hidden');
+                calcStartContainer.classList.add('hidden');
                 calcVerticalMessage.classList.remove('hidden');
+                calcVerticalMessage.innerHTML = `het is een verticale lijn, dus de formule is <strong>${varX} = getal</strong>. je kijkt naar het snijpunt met de ${varX}-as om dat getal te vinden, dat getal is hier dus <strong>${formatNum(x1)}</strong>.`;
+            } else if (currentProblem.isHorizontal) {
+                explanationTitle.innerText = "uitleg horizontale lijn";
+                tableAndArcs.classList.add('hidden');
+                calcFractionRow.classList.add('hidden');
+                calcStartContainer.classList.add('hidden');
+                calcVerticalMessage.classList.remove('hidden');
+                calcVerticalMessage.innerHTML = `het is een horizontale lijn, dus de formule is <strong>${varY} = getal</strong>. je kijkt naar het snijpunt met de ${varY}-as om dat getal te vinden, dat getal is hier dus <strong>${formatNum(y1)}</strong>.`;
             } else {
-                explanationTitle.innerText = "berekening hellingsgetal (afbeelding1.jpg)";
+                explanationTitle.innerText = "berekening hellingsgetal";
+                tableAndArcs.classList.remove('hidden');
                 calcFractionRow.classList.remove('hidden');
                 calcVerticalMessage.classList.add('hidden');
 
                 document.getElementById('calcTop').innerText = formatNum(diffY);
                 document.getElementById('calcBottom').innerText = formatNum(diffX);
                 document.getElementById('calcResult').innerText = formatNum(currentProblem.rc);
+
+                calcStartContainer.classList.remove('hidden');
+                
+                const startStr = formatNum(currentProblem.start);
+                const isStartOnGrid = optInterceptGrid.checked || Math.abs((currentProblem.start / currentProblem.stepY) - Math.round(currentProblem.start / currentProblem.stepY)) < 0.0001;
+
+                if (!isStartOnGrid) {
+                    // Startgetal is GEEN roosterpunt -> stap-voor-stap berekening
+                    document.getElementById('calcStartStep1').classList.remove('hidden');
+                    document.getElementById('calcStartStep2').classList.remove('hidden');
+                    document.getElementById('calcStartStep3').classList.remove('hidden');
+
+                    const rcStr = formatNum(currentProblem.rc);
+                    const prod = currentProblem.rc * x1;
+                    const prodStr = formatNum(prod);
+
+                    document.getElementById('calcStartStep1').innerHTML = 
+                        `1. Formule tot nu toe: <span class="font-black text-orange-600">${varY} = ${rcStr} · ${varX} + b</span>`;
+                    document.getElementById('calcStartStep2').innerHTML = 
+                        `2. Vul punt (${formatNum(x1)}, ${formatNum(y1)}) in:<br>` +
+                        `   &nbsp;&nbsp;&nbsp;${formatNum(y1)} = ${rcStr} · ${formatNum(x1)} + b<br>` +
+                        `   &nbsp;&nbsp;&nbsp;${formatNum(y1)} = ${prodStr} + b`;
+                    document.getElementById('calcStartStep3').innerHTML = 
+                        `3. Startgetal berekenen:<br>` +
+                        `   &nbsp;&nbsp;&nbsp;b = ${formatNum(y1)} - ${prodStr} = <span class="text-orange-600 font-black">${startStr}</span>`;
+                } else {
+                    // Startgetal IS WEL een roosterpunt
+                    document.getElementById('calcStartStep1').classList.remove('hidden');
+                    document.getElementById('calcStartStep2').classList.add('hidden');
+                    document.getElementById('calcStartStep3').classList.add('hidden');
+
+                    document.getElementById('calcStartStep1').innerHTML = 
+                        `De grafiek snijdt de verticale as in een roosterpunt, dat kun je dus mooi aflezen. Het startgetal is hier dus <span class="text-orange-600 font-black">${startStr}</span>.`;
+                }
             }
         }
 
